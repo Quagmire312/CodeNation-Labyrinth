@@ -275,6 +275,19 @@ def SpawnMonsters():
 DropChance = 0.5
 HealthChance = 0.8 # otherwise strength
 
+def DropItem(): 
+    rng = randint(1, 100)
+    if rng > DropChance * 100:
+        rng2 = randint(1,100)
+        if rng2 > HealthChance * 100:
+            Print2("The enemy drops a health potion!")
+            return "Health Potion"
+        else:
+            Print2("The enemy dropped a strength potion!")
+            return "Strength Potion"
+    Print2("The enemy drops an empty bottle.")
+    return None
+
 #spawn boss once all enemies are defeated
 
 def SpawnEvents():
@@ -399,8 +412,6 @@ def Print2Grid():
 #         SpawnBoss()
 
 
-# Monster1 = monsters.Monster("A large minotaur blocks the path", [50,5,20])
-
 Start()
 
 Directions = ["West", "East", "South", "North"]
@@ -410,13 +421,20 @@ array = (2,2,2,2,False)
 
 
 GameLoop = True
-MonsterInfo = [[]]
 while GameLoop:
     if Rooms[x][y] != []:
         if "Monster" in Rooms[x][y]:
             # check which monster is in the room
             if Rooms[x][y][-1] == "1":
                 MonsterInfo = monsters.Monster1()
+            elif Rooms[x][y][-1] == "2":
+                MonsterInfo = monsters.Monster2()
+            elif Rooms[x][y][-1] == "3":
+                MonsterInfo = monsters.Monster3()
+            elif Rooms[x][y][-1] == "4":
+                MonsterInfo = monsters.Monster4()
+            elif Rooms[x][y][-1] == "5":
+                MonsterInfo = monsters.Monster5()
             # #retrieve monster information
             MonsterDesc = MonsterInfo[1]
             print(MonsterDesc)
@@ -427,15 +445,32 @@ while GameLoop:
             else:
                 Keys+=1
                 Rooms[x][y] == "Dead monster"
+                Inventory.append(DropItem())
                 # itemdrop function needed()
 
+        if "Event" in Rooms[x][y]:
+            event = ""
+            if Rooms[x][y][-1] == "1":
+                event = events.Event1()
+            elif Rooms[x][y][-1] == "2":
+                event = events.Event2()
+            elif Rooms[x][y][-1] == "3":
+                event = events.Event3()
+            
+            if event == "an Orichalcum Sword":
+                Print2(f"You found a {event}. You proudly replace your old iron sword with it.")
+                PlayerStats[2] += 20
+            elif event == "a Titanium Armor":
+                Print2(f"You found {event}. You proudly replace your old leather armor with it.")
+                PlayerStats[1] += 20
+            elif event == "trap":
+                Print2("You walked towards the chest looking for new loot. However, the floor open beneath you into a giant pit. You sprained both of your ankles.")
+                PlayerStats[0] -= 15
+
+            Rooms[x][y] = []
 
 
-
-
-
-
-    # Time to explore
+        # Time to explore
     Print2(Rooms[x][y])
     Print2(Rooms[PastCoords[0]][PastCoords[1]])
     Print2Grid()
@@ -443,8 +478,13 @@ while GameLoop:
 
     if array[4]:
         Print2("You can't go that way")
+
+    #Print2(f"Health: {PlayerStats[0]} || Attack: {PlayerStats[2]} || Defense: {PlayerStats[1]}")
+
     Print2(f"""
 {CurrentDescription}
+
+Health: {PlayerStats[0]} || Attack: {PlayerStats[2]} || Defense: {PlayerStats[1]}
 
 Which direction do you go?
 1. North
