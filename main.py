@@ -572,10 +572,12 @@ Do you want to use an item?
                             n = 0
                             n2 = 0
 
-                            test = Inv.items
+                            #test = Inv.items
                             if "Health Potion" in Inv.items:
                                 n = Inv.items["Health Potion"].quantity
                                 print(n)
+                            if "Strength Potion" in Inv.items:
+                                n2 = Inv.items["Strength Potion"].quantity
 
                             Print2(f"""
 

@@ -42,9 +42,4 @@ class Inventory:
         self.add_item(item, quantity)
         print(f"Picked up {quantity} {item.name}(s).")
 
-    def get_inv(self):
-        arr = []
-        for i in self.items:
-            arr.append(i.name)
-        return arr
 
