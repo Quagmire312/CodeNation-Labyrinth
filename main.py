@@ -399,6 +399,8 @@ def Print2Grid():
 #         SpawnBoss()
 
 
+# Monster1 = monsters.Monster("A large minotaur blocks the path", [50,5,20])
+
 Start()
 
 Directions = ["West", "East", "South", "North"]
@@ -408,21 +410,25 @@ array = (2,2,2,2,False)
 
 
 GameLoop = True
+MonsterInfo = [[]]
 while GameLoop:
     if Rooms[x][y] != []:
         if "Monster" in Rooms[x][y]:
             # check which monster is in the room
+            if Rooms[x][y][-1] == "1":
+                MonsterInfo = monsters.Monster1()
             # #retrieve monster information
-            print("You enter a dark room, within lies a monster")
+            MonsterDesc = MonsterInfo[1]
+            print(MonsterDesc)
 
-            MonsterStats = [50,10,10]
+            MonsterStats = MonsterInfo[0]
             if Combat(PlayerStats, MonsterStats) == "Lose":
                 quit()
             else:
                 Keys+=1
                 Rooms[x][y] == "Dead monster"
                 # itemdrop function needed()
-            #Combat()
+
 
 
 
