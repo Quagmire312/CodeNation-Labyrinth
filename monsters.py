@@ -8,7 +8,9 @@ boss
 def Monster1():
     #description, stats, fight, item drops? - keys for boss room
     description = "a large minotaur blocks your path... "
-    pass
+    stats = [50,5,20]
+    return stats, description
+
 
 def Monster2():
     pass

@@ -1,6 +1,7 @@
 import monsters, events
 from random import randint, choice
-
+from time import sleep as s
+from math import ceil
 
 # for i in range(5):
 #     Rooms.append([])
@@ -15,26 +16,11 @@ Rooms = [
     [[],[],[],[],[]]
 ]
 
-"""
-CurrentRoom = [x,y]
-Rooms[x,y]
-options = [N,S,E,W]
-
-if x == 0:
-    remove option for west
-elif x == 4:
-    remove option for east
-if y == 0:
-    remove option for north
-elif y == 4:
-    remove option for south
-
-
-for dir in options:
-
-"""
-
-
+def Print2(text):
+    for char in text:
+        print(char,end="",flush = True)
+        s(0.01)
+    print()
 
 
 
@@ -42,7 +28,7 @@ Keys = 0
 #if keys = 5:
 # bossroom is unlocked
 
-Inventory = []
+Inventory = ["Health Potion"]
 # health regeneration
 # can be found randomly
 # one time strength potion
@@ -54,8 +40,8 @@ Inventory = []
 PlayerStats = [100,10,10] # HP, Def, Atk
 MonsterStats = [40,5,15]
 
-# combat - attack / defend /prepare
-
+# combat - attack / defend / prepare
+# monster - attack, defend, do nothing
 
 # if you attack and monster attacks - just deal damage = atk
 # if you attack and monster defends - your atk - monster defense
@@ -65,6 +51,164 @@ MonsterStats = [40,5,15]
 
 # prompt what the monster is doing next time - item locked?
 # hardcode crit chance
+
+Nothing = ["The monster is loafing around", "The monster gets lost in your eyes", "The monster starts tying its shoelaces"]
+Attacking = ["The monster prepares to attack", "The monster readies itself to strike"]
+Defending = ["The monster takes a defensive stance", "The monster steadies itself"]
+
+def Combat(Stats,MobStats):
+    PHealth = Stats[0]
+    PDef = Stats[1]
+    PAtk = Stats[2]
+    EHealth = MobStats[0]
+    EDef=MobStats[1]
+    EAtk=MobStats[2]
+
+    defscaling = 2
+
+    preparing = False
+
+    while PHealth != 0 or EHealth !=0:
+
+        MonDoNothingChance = 0.95
+        MonChoice = randint(1,100)
+
+        critical=randint(0,100)
+        if critical > 95:
+            Crit = True
+
+        if MonChoice/100 >= MonDoNothingChance: # do nothing
+            Print2(choice(Nothing))
+            MonChoice = "nothing"
+
+
+        elif MonChoice%8 == 0: # defends
+            Print2(choice(Defending))
+            MonChoice = "defending"
+
+
+        else: # attack
+            Print2(choice(Attacking))
+            MonChoice = "attacking"
+
+
+
+        valid = False
+
+        while not valid and not preparing:
+            Print2("""
+Choose your move
+1. Attack
+2. Defend
+3. Charge a strong attack""")
+            try:
+                Choice = int(input(">"))
+                if Choice not in [1, 2, 3]:
+                    Print2("Please pick a proper action with 1, 2 or 3")
+                    continue
+
+                else:
+                    valid = True
+
+            except KeyboardInterrupt:
+                quit()
+
+            except:
+                Print2("Please pick a proper action with 1, 2 or 3")
+                pass
+
+        MonDamage = 0
+        Crit = False
+
+        critical = randint(1,100)
+        if critical > 95:
+            Crit = True
+        if Choice == 1:
+            Print2("You charge forwards with sword in hand, slashing at the monster")
+
+
+
+            if MonChoice != "defending":
+                Damage = PAtk
+
+            else:
+                Damage = ceil(PAtk-EDef/defscaling)
+
+
+            if Crit:
+                Damage*=2
+                Print2("You strike the monster at its weak point, dealing more damage than usual!")
+
+            EHealth -= Damage
+
+            if EHealth <=0:
+                Result = "Win"
+                break
+
+            if MonChoice == "attacking":
+                MonDamage = EAtk
+            Print2(f"You deal {Damage} damage. The enemy has {EHealth}HP left.")
+
+
+        if Choice == 2:
+            Print2("You raise your shield, bracing yourself")
+            if MonChoice in ["defending", "nothing"]:
+                Print2("You and the monster stare at eachother for a second before resuming your fight")
+
+            else:
+                MonDamage = round(EAtk - PDef/defscaling)
+
+            if Crit:
+                MonDamage/=2
+                print("You block the enemies attack perfectly, deflecting most of the damage")
+
+        if Choice == 3:
+
+            if not preparing:
+                preparing = True
+                print("You ready your sword, waiting for an opportune moment to strike")
+
+
+            elif preparing:
+                print("You find your moment to strike")
+                Damage = PAtk*2.5
+
+                if Crit:
+                    Damage*=2
+                    print("You strike the monster at its weakest point, dealing more damage than usual!")
+
+                EHealth -= Damage
+
+                if EHealth <=0:
+                    Result = "Win"
+                    break
+
+                if MonChoice == "attacking":
+                    MonDamage = EAtk*1.5
+
+                print(f"You deal {Damage} damage. The enemy has {EHealth}HP left.")
+
+                preparing = False
+
+
+
+        PHealth-=MonDamage
+        if PHealth <=0:
+            Result = "Lose"
+            break
+
+        Print2(f"The monster deals {MonDamage} damage to you. You have {PHealth}HP left.")
+
+
+    if Result == "Win":
+        Print2("The monster falls to the ground defeated")
+
+    else:
+        Print2("The monster strikes you in the head.\n\nYour vision fades to black...")
+
+
+
+    return Result
 
 
 def SpawnMonsters():
@@ -172,7 +316,7 @@ def SpawnEvents():
 
 
 
-#print(Rooms[0][4])
+#Print2(Rooms[0][4])
 
 def SpawnItems(): # 5 items - potions
     Occupied = True
@@ -207,7 +351,7 @@ EmptyRoomDescriptions = ["There is nothing in this room", "You look closely at t
 # random descriptions
 
 def Lore():
-    print("You awaken in a dark room, you see a tile ahead of you....")
+    Print2("You awaken in a dark room, you see a tile ahead of you....")
 
 def Move(direction, x,y):
     NewX = x
@@ -223,7 +367,7 @@ def Move(direction, x,y):
         NewX+=1
 
     if NewX < 0 or NewX > 4 or NewY > 4 or NewY < 0:
-        print("You can't go that way")
+        #Print2("You can't go that way")
         NewX = x
         NewY = y
         Stuck = True
@@ -243,11 +387,11 @@ def Start():
     Lore()
     Rooms[x][y] = "Player"
 
-    PrintGrid()
+    Print2Grid()
 
-def PrintGrid():
+def Print2Grid():
     for i in range(len(Rooms)):
-        print(Rooms[i])
+        Print2(Rooms[i])
 
 
 # def GameLoop():
@@ -260,11 +404,40 @@ Start()
 Directions = ["West", "East", "South", "North"]
 
 CurrentDescription = "You stand in the room where you awoke"
-while True:
-    print(Rooms[x][y])
-    print(Rooms[PastCoords[0]][PastCoords[1]])
-    PrintGrid()
-    print(f"""
+array = (2,2,2,2,False)
+
+
+GameLoop = True
+while GameLoop:
+    if Rooms[x][y] != []:
+        if "Monster" in Rooms[x][y]:
+            # check which monster is in the room
+            # #retrieve monster information
+            print("You enter a dark room, within lies a monster")
+
+            MonsterStats = [50,10,10]
+            if Combat(PlayerStats, MonsterStats) == "Lose":
+                quit()
+            else:
+                Keys+=1
+                Rooms[x][y] == "Dead monster"
+                # itemdrop function needed()
+            #Combat()
+
+
+
+
+
+
+    # Time to explore
+    Print2(Rooms[x][y])
+    Print2(Rooms[PastCoords[0]][PastCoords[1]])
+    Print2Grid()
+
+
+    if array[4]:
+        Print2("You can't go that way")
+    Print2(f"""
 {CurrentDescription}
 
 Which direction do you go?
@@ -272,8 +445,17 @@ Which direction do you go?
 2. South
 3. East
 4. West""")
-    #print (x,y)
-    array = Move(Directions[int(input(">"))-1],x,y)
+    # checking inventory / using items
+    #Print2 (x,y)
+    NotMoved = True
+    while NotMoved:
+        try:
+            array = Move(Directions[int(input(">"))-1],x,y)
+            NotMoved = False
+        except KeyboardInterrupt:
+            quit()
+        except:
+            Print2("Please input a proper direction using the numbers 1, 2, 3 or 4")
     x = array[2]
     y = array[3]
 
