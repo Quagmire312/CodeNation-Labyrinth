@@ -1,4 +1,5 @@
 import monsters, events
+from Inventory import Item, Inventory
 from random import randint, choice
 from time import sleep as s
 from math import ceil
@@ -7,6 +8,25 @@ from math import ceil
 #     Rooms.append([])
 #     for ii in range(5):
 #         Rooms[i].append([])
+
+def StartInventory():
+    global Inv, Sword, HealthPot, StrengthPot, Shield, Sword2, Armour, Armour2, Key
+    Inv = Inventory()
+
+    HealthPot = Item("Health Potion", "a small vial filled with a blood-red liquid.")
+    StrengthPot = Item("Strength Potion", "A small vial filled with a neon blue liquid.")
+    Sword = Item("Sword", "An old sword, riddled with dents.")
+    Shield = Item("Shield", "Your trusty Bronze shield.")
+    Sword2 = Item("Orichalcum sword", "An illustrious golden blade, its edge incredibly sharp, and the weight well balanced.")
+    Armour = Item("Leather armour", "Your old leather armour. It has accompanied you across many journeys.")
+    Armour2 = Item("Titanium armour", "A radiant set of armour, capable of defending you from the most powerful blows.")
+    Key = Item("Gold Key", "A jewel-encrusted golden key, part of a set of 5. You obtained this after defeating a powerful enemy in combat.")
+
+    Inv.add_item(HealthPot, 1)
+    Inv.add_item(Sword, 1)
+    Inv.add_item(Shield,1)
+    Inv.add_item(Armour,1)
+
 
 Rooms = [
     [[],[],[],[],[]],
@@ -28,7 +48,7 @@ Keys = 0
 #if keys = 5:
 # bossroom is unlocked
 
-Inventory = ["Health Potion"]
+#Inventory = ["Health Potion"]
 # health regeneration
 # can be found randomly
 # one time strength potion
@@ -38,7 +58,7 @@ Inventory = ["Health Potion"]
 
 
 PlayerStats = [100,10,10] # HP, Def, Atk
-MonsterStats = [40,5,15]
+TestMonsterStats = [40,5,15]
 
 # combat - attack / defend / prepare
 # monster - attack, defend, do nothing
@@ -57,12 +77,18 @@ Attacking = ["The monster prepares to attack", "The monster readies itself to st
 Defending = ["The monster takes a defensive stance", "The monster steadies itself"]
 
 def Combat(Stats,MobStats):
+    global Strength
     PHealth = Stats[0]
     PDef = Stats[1]
     PAtk = Stats[2]
     EHealth = MobStats[0]
     EDef=MobStats[1]
     EAtk=MobStats[2]
+
+    if Strength:
+        PAtk +=15
+        Strength = False
+
 
     defscaling = 2
 
@@ -398,6 +424,7 @@ def Start():
     SpawnEvents()
     SpawnItems()
     Lore()
+    StartInventory()
     Rooms[x][y] = "Player"
 
     Print2Grid()
@@ -435,40 +462,62 @@ while GameLoop:
                 MonsterInfo = monsters.Monster4()
             elif Rooms[x][y][-1] == "5":
                 MonsterInfo = monsters.Monster5()
-            # #retrieve monster information
+
+
             MonsterDesc = MonsterInfo[1]
             print(MonsterDesc)
 
             MonsterStats = MonsterInfo[0]
+
+
             if Combat(PlayerStats, MonsterStats) == "Lose":
                 quit()
+
             else:
+                Inv.add(Key)
                 Keys+=1
                 Rooms[x][y] == "Dead monster"
                 Inventory.append(DropItem())
-                # itemdrop function needed()
 
-        if "Event" in Rooms[x][y]:
+
+        elif "Event" in Rooms[x][y]:
             event = ""
+
+
             if Rooms[x][y][-1] == "1":
                 event = events.Event1()
+
             elif Rooms[x][y][-1] == "2":
                 event = events.Event2()
+
             elif Rooms[x][y][-1] == "3":
                 event = events.Event3()
             
+
             if event == "an Orichalcum Sword":
                 Print2(f"You found a {event}. You proudly replace your old iron sword with it.")
+
+                Inv.pick_up_item(Sword2,1)
+                Inv.remove_item(Sword)
                 PlayerStats[2] += 20
-            elif event == "a Titanium Armor":
+
+            elif event == "a Titanium Armour":
                 Print2(f"You found {event}. You proudly replace your old leather armor with it.")
+
+                Inv.pick_up_item(Armour2)
+                Inv.remove_item(Armour)
                 PlayerStats[1] += 20
+
             elif event == "trap":
                 Print2("You walked towards the chest looking for new loot. However, the floor open beneath you into a giant pit. You sprained both of your ankles.")
+
                 PlayerStats[0] -= 15
 
             Rooms[x][y] = []
 
+
+        elif "monster" in Rooms[x][y]:
+            print("You enter a room with the corpse of a past enemy")
 
         # Time to explore
     Print2(Rooms[x][y])
@@ -490,18 +539,82 @@ Which direction do you go?
 1. North
 2. South
 3. East
-4. West""")
+4. West
+5. Check Inventory""")
     # checking inventory / using items
     #Print2 (x,y)
     NotMoved = True
     while NotMoved:
         try:
-            array = Move(Directions[int(input(">"))-1],x,y)
+            Option = int(input(">"))
+            array = Move(Directions[Option-1],x,y)
             NotMoved = False
         except KeyboardInterrupt:
             quit()
+        except IndexError:
+            if Option == 5:
+                Inv.check_inventory()
+                NotMoved = False
+                Print2("""
+Do you want to use an item?
+1. yes
+2. no""")
+                InvFlag = True
+                while InvFlag:
+                    try:
+                        Option = int(input(">"))
+
+                        if Option == 1 or Option == 2:
+                            InvFlag = False
+
+                        if Option == 1:
+
+                            n = 0
+                            n2 = 0
+
+                            test = Inv.items
+                            if "Health Potion" in Inv.items:
+                                n = Inv.items["Health Potion"].quantity
+                                print(n)
+
+                            Print2(f"""
+
+You have {n} Health Potion(s) and {n2} Strength Potions. Which do you want to use?
+1. Health Potion
+2. Strength Potion
+""")
+
+                            NotPot = True
+                            while NotPot:
+                                try:
+                                    Option = int(input(">"))
+
+                                    if Option == 1 or Option == 2:
+                                        NotPot = False
+
+                                        if Option == 1:
+                                            Inv.remove_item(HealthPot)
+                                            PlayerStats[0] += 20
+                                            print("You feel a healing energy course through your veins, revatilising your body")
+
+                                        else:
+                                            Inv.remove_item(StrengthPot)
+                                            Strength = True
+                                            Print2("You feel a great strength rising within your body, temporarily making you significantly stronger")
+
+
+                                except KeyboardInterrupt:
+                                    quit()
+                                except:
+                                    Print2("Please use select a proper option using the numbers 1 or 2")
+
+                    except KeyboardInterrupt:
+                        quit()
+
+                    except:
+                        Print2("Please input a proper option using the numbers 1 or 2")
         except:
-            Print2("Please input a proper direction using the numbers 1, 2, 3 or 4")
+            Print2("Please input a proper direction using the numbers 1, 2, 3 or 4, or check your inventory with 5")
     x = array[2]
     y = array[3]
 

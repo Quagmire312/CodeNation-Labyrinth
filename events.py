@@ -7,7 +7,7 @@ def Event1():
     pass
 
 def Event2():
-    return "a Titanium Armor"
+    return "a Titanium Armour"
     # new armour / shield - increased def
     pass
 
