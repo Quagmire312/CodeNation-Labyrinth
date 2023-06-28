@@ -22,10 +22,11 @@ def StartInventory():
     Armour2 = Item("Titanium armour", "A radiant set of armour, capable of defending you from the most powerful blows.")
     Key = Item("Gold Key", "A jewel-encrusted golden key, part of a set of 5. You obtained this after defeating a powerful enemy in combat.")
 
-    Inv.add_item(HealthPot, 1)
-    Inv.add_item(Sword, 1)
-    Inv.add_item(Shield,1)
-    Inv.add_item(Armour,1)
+    Inv.add_item(HealthPot, 1 ,False)
+    Inv.add_item(Sword, 1, False)
+    Inv.add_item(Shield,1, False)
+    Inv.add_item(Armour,1, False)
+
 
 
 Rooms = [
@@ -39,7 +40,7 @@ Rooms = [
 def Print2(text):
     for char in text:
         print(char,end="",flush = True)
-        s(0.01)
+        s(0.001)
     print()
 
 
@@ -76,6 +77,7 @@ Nothing = ["The monster is loafing around", "The monster gets lost in your eyes"
 Attacking = ["The monster prepares to attack", "The monster readies itself to strike"]
 Defending = ["The monster takes a defensive stance", "The monster steadies itself"]
 
+Strength = False
 def Combat(Stats,MobStats):
     global Strength
     PHealth = Stats[0]
@@ -258,7 +260,7 @@ def SpawnMonsters():
         x = randint(0,4)
         y = randint(0,4)
         if Rooms[x][y] == [] and [x,y] != [2,2]:
-            Monster1 = [x,y]
+            Monster2 = [x,y]
             Rooms[x][y] = "Monster 2"
             break
 
@@ -269,7 +271,7 @@ def SpawnMonsters():
         x = randint(0,4)
         y = randint(0,4)
         if Rooms[x][y] == [] and [x,y] != [2,2]:
-            Monster1 = [x,y]
+            Monster3 = [x,y]
             Rooms[x][y] = "Monster 3"
             break
 
@@ -280,7 +282,7 @@ def SpawnMonsters():
         x = randint(0,4)
         y = randint(0,4)
         if Rooms[x][y] == [] and [x,y] != [2,2]:
-            Monster1 = [x,y]
+            Monster4 = [x,y]
             Rooms[x][y] = "Monster 4"
             break
 
@@ -291,7 +293,7 @@ def SpawnMonsters():
         x = randint(0,4)
         y = randint(0,4)
         if Rooms[x][y] == [] and [x,y] != [2,2]:
-            Monster1 = [x,y]
+            Monster5 = [x,y]
             Rooms[x][y] = "Monster 5"
             break
 
@@ -326,7 +328,7 @@ def SpawnEvents():
         x = randint(0,4)
         y = randint(0,4)
         if Rooms[x][y] == [] and [x,y] != [2,2]:
-            Monster1 = [x,y]
+            Event1 = [x,y]
             Rooms[x][y] = "Event 1"
             break
 
@@ -337,7 +339,7 @@ def SpawnEvents():
         x = randint(0,4)
         y = randint(0,4)
         if Rooms[x][y] == [] and [x,y] != [2,2]:
-            Monster1 = [x,y]
+            Event2 = [x,y]
             Rooms[x][y] = "Event 2"
             break
 
@@ -348,7 +350,7 @@ def SpawnEvents():
         x = randint(0,4)
         y = randint(0,4)
         if Rooms[x][y] == [] and [x,y] != [2,2]:
-            Monster1 = [x,y]
+            Event3 = [x,y]
             Rooms[x][y] = "Event 3"
             break
 
@@ -385,12 +387,61 @@ def SpawnBoss():
     global Boss
     Boss = []
 
+    Occupied = True
+    while Occupied:
+        x = randint(0,4)
+        y = randint(0,4)
+        if Rooms[x][y] == [] and [x,y] != [2,2]:
+            Monster1 = [x,y]
+            Rooms[x][y] = "Boss"
+            break
+
 
 EmptyRoomDescriptions = ["There is nothing in this room", "You look closely at the corners, but only find cobwebs", "..."]
 # random descriptions
 
 def Lore():
-    Print2("You awaken in a dark room, you see a tile ahead of you....")
+    Print2("""Welcome Traveller, to the enchanting land of Eldoria. A realm of magic and mystery, Eldoria is known for its lush landscapes,
+towering mountains, and bustling towns. However, darkness looms over this once-peaceful kingdom. The ancient evil that has long been sealed away
+within the depths of the Forbidden Dungeon has awakened, unleashing chaos and despair. To make matters worse, the nefarious creature has captured
+the beloved princess, casting a shadow of sorrow upon the land. Now, a call to heroes echoes through the realm, beckoning courageous souls like
+yourself to rise up and embark on a perilous quest to save the princess and restore hope to Eldoria. The fate of the kingdom rests in your hands.
+Will you answer the call and face the treacherous trials that lie ahead? Prepare to venture into the heart of darkness, where danger lurks at every turn.
+Brace yourself, for the destiny of the princess and the fate of Eldoria await your valiant efforts.""")
+
+
+def TitleScreen():
+    Print2("""
+                        ______________________________________________________________________________________________
+
+                         8888b.  88   88 88b 88  dP""b8 888888  dP"Yb  88b 88      db    88""Yb 888888 88b 88    db
+                          8I  Yb 88   88 88Yb88 dP   `" 88__   dP   Yb 88Yb88     dPYb   88__dP 88__   88Yb88   dPYb
+                          8I  dY Y8   8P 88 Y88 Yb  "88 88""   Yb   dP 88 Y88    dP__Yb  88"Yb  88""   88 Y88  dP__Yb
+                         8888Y"  `YbodP' 88  Y8  YboodP 888888  YbodP  88  Y8   dP""""Yb 88  Yb 888888 88  Y8 dP""""Yb
+                        ______________________________________________________________________________________________""")
+
+
+
+    prompt = "Do you want to start the game? (Y/N): "
+    Print2(prompt)
+
+    start_game = input(">")
+    if start_game.lower()[0] == "y":
+        message = "Loading"
+        Print2(message)
+
+    else:
+        message = "Maybe next time!"
+        Print2(message)
+
+
+
+
+
+
+
+
+
 
 def Move(direction, x,y):
     NewX = x
@@ -419,15 +470,31 @@ y=2
 
 CurrentCoords = [x,y]
 PastCoords = [x,y]
+
+def BadEnding():
+    Print2('''
+    The dragon's mighty roar fills the air as its power overwhelms you.
+Your strength falters, and you can feel the grip of defeat tightening around you.
+The dragon's fiery breath engulfs you, leaving nothing but ashes and despair in its wake.
+''')
+    
+
+def GoodEnding():
+    Print2('''
+    You have defeated the mighty dragon, its lifeless body collapsing to the ground.
+The room is filled with a sense of accomplishment and relief as you realize the danger has been vanquished.
+Eldoria will forever remember your bravery and the triumph over the ancient dragon.
+''')
+
+
 def Start():
+    TitleScreen()
     SpawnMonsters()
     SpawnEvents()
     SpawnItems()
     Lore()
     StartInventory()
     Rooms[x][y] = "Player"
-
-    Print2Grid()
 
 def Print2Grid():
     for i in range(len(Rooms)):
@@ -474,7 +541,7 @@ while GameLoop:
                 quit()
 
             else:
-                Inv.add(Key)
+                Inv.pick_up_item(Key)
                 Keys+=1
                 Rooms[x][y] == "Dead monster"
                 Inventory.append(DropItem())
@@ -518,6 +585,42 @@ while GameLoop:
 
         elif "monster" in Rooms[x][y]:
             print("You enter a room with the corpse of a past enemy")
+
+
+        elif "Potion" in Rooms[x][y]:
+            if Rooms[x][y] == "Health Potion":
+                print("As you enter the room, you find an unused health potion and pick it up")
+                Inv.pick_up_item(HealthPot,1)
+                Rooms[x][y] = []
+
+            elif Rooms[x][y] == "Strength Potion":
+                print("As you enter the room, you find an unused strength potion and pick it up")
+                Inv.pick_up_item(StrengthPot,1)
+                Rooms[x][y] = []
+
+
+        elif "Boss" in Rooms[x][y]:
+            MonsterInfo = monsters.Boss()
+            MonsterDesc = MonsterInfo[1]
+            Print2(MonsterDesc)
+
+            MonsterStats = MonsterInfo[0]
+
+            if Combat(PlayerStats,MonsterStats):
+                GameLoop = False
+                BadEnding()
+
+            else:
+                GameLoop = True
+                GoodEnding()
+
+    try:
+        if Inv.items["Gold Key"].quantity == 5:
+            print("You hear a rumbling sound in the dungeon. The final chamber has appeared, housing the final beast...")
+    except:
+        pass
+
+
 
         # Time to explore
     Print2(Rooms[x][y])
